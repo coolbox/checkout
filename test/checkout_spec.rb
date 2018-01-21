@@ -51,7 +51,7 @@ RSpec.describe Checkout do
     let(:checkout) { Checkout.new }
 
     it "returns 0.0 when there are no items in the basket" do
-      expect(checkout.total).to eq(0.0)
+      expect(checkout.total).to eq("£0.0")
     end
 
     context "with products" do
@@ -62,7 +62,7 @@ RSpec.describe Checkout do
           2.times do
             checkout.scan(product["product_code"])
           end
-          expect(checkout.total).to be_kind_of(Float)
+          expect(checkout.total).to be_kind_of(String)
         end
       end
 
@@ -71,7 +71,7 @@ RSpec.describe Checkout do
           10.times do
             checkout.scan(product["product_code"])
           end
-          expect(checkout.total).to be_kind_of(Float)
+          expect(checkout.total).to be_kind_of(String)
         end
       end
     end

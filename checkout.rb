@@ -36,7 +36,7 @@ class Checkout
   def total
     total = with_product_discounts
     total = with_basket_discounts(total)
-    return total
+    return "£#{total}"
   end
 
   def basket_promotions
