@@ -39,6 +39,8 @@ class Checkout
     return "£#{total}"
   end
 
+  private
+
   def basket_promotions
     promos = []
     basket_promotion_rules.each do |promo_rule|
