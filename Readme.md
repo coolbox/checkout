@@ -1,0 +1,2 @@
+- Install bundler
+- Bundle install
