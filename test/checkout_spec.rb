@@ -6,6 +6,9 @@ require "yaml"
 PRODUCTS = YAML.load(File.read("config/products.yml")
 ) unless defined?(PRODUCTS)
 
+BASKET_PROMOTIONS = YAML.load(File.read("config/basket_promotions.yml")
+) unless defined?(BASKET_PROMOTIONS)
+
 RSpec.describe Checkout do
   describe "#scan" do
     let(:checkout) { Checkout.new }

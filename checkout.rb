@@ -1,5 +1,8 @@
 load "./product.rb"
 
+BASKET_PROMOTIONS = YAML.load(File.read("config/basket_promotions.yml")
+) unless defined?(BASKET_PROMOTIONS)
+
 class Checkout
   attr_accessor :items
 
