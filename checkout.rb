@@ -1,15 +1,20 @@
 load "./product.rb"
 load "./basket_promotion.rb"
+load "./product_promotion.rb"
 
 BASKET_PROMOTION_RULES = YAML.load(File.read("config/basket_promotions.yml")
 ) unless defined?(BASKET_PROMOTION_RULES)
 
-class Checkout
-  attr_accessor :items, :basket_promotion_rules
+PRODUCT_PROMOTION_RULES = YAML.load(File.read("config/basket_promotions.yml")
+) unless defined?(PRODUCT_PROMOTION_RULES)
 
-  def initialize(basket_promotion_rules: [])
+class Checkout
+  attr_accessor :items, :basket_promotion_rules, :product_promotion_rules
+
+  def initialize(basket_promotion_rules: [], product_promotion_rules: [])
     @items = []
     @basket_promotion_rules = basket_promotion_rules
+    @product_promotion_rules = product_promotion_rules
   end
 
   # Append items to the sale
@@ -28,11 +33,24 @@ class Checkout
 
   def basket_promotions
     promos = []
-    basket_promotion_rules.each do |bp|
+    basket_promotion_rules.each do |promo_rule|
       promos << BasketPromotion.new(
-        bp[:id],
-        bp[:minimum_spend],
-        bp[:discount]
+        promo_rule[:id],
+        promo_rule[:minimum_spend],
+        promo_rule[:discount]
+      )
+    end
+    return promos
+  end
+
+  def product_promotions
+    promos = []
+    product_promotion_rules.each do |promo_rule|
+      promos << ProductPromotion.new(
+        promo_rule[:id],
+        promo_rule[:product_code],
+        promo_rule[:minimum_quantity],
+        promo_rule[:price]
       )
     end
     return promos
@@ -49,5 +67,21 @@ class Checkout
       discounted_total = discounted_total - total_after_discount
     end
     return discounted_total.round(2)
+  end
+
+  def with_product_discounts
+    amount_to_discount = 0
+    product_groups = @items.group_by { |item| item["product_code"] }
+    product_groups.each do |group, items|
+      quantity = items.length
+      product_code = items.first["product_code"]
+      product_promotions.each do |promo|
+        new if !promo.valid_for_this_basket?(product_code, quantity)
+        new_price = promo.price.to_f
+        original_total = items.map { |item| item["price"] }.sum
+        amount_to_discount += (original_total - (new_price * quantity))
+      end
+    end
+    return running_total - amount_to_discount
   end
 end

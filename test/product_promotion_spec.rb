@@ -1,4 +1,3 @@
-require "./test/config.rb"
 require "./product_promotion.rb"
 
 require "yaml"
@@ -26,6 +25,38 @@ RSpec.describe ProductPromotion do
         minimum_quantity: promo[:minimum_quantity],
         price: promo[:price],
       )
+    end
+  end
+
+  describe "valid_for_this_basket?" do
+    let(:promo) { ProductPromotion.new(001, 001, 2, 2) }
+
+    context "with a valid product code" do
+      it "returns false when the total isn't valid" do
+        expect(promo.valid_for_this_basket?(001, 1)).to eq(false)
+      end
+
+      it "returns true when the quantity is equal to the minimum" do
+        expect(promo.valid_for_this_basket?(001, 2)).to eq(true)
+      end
+
+      it "returns true when the quantity is greate than the minimum" do
+        expect(promo.valid_for_this_basket?(001, 3)).to eq(true)
+      end
+    end
+
+    context "with an invalid product code" do
+      it "returns false when the total isn't valid" do
+        expect(promo.valid_for_this_basket?(002, 1)).to eq(false)
+      end
+
+      it "returns true when the quantity is equal to the minimum" do
+        expect(promo.valid_for_this_basket?(002, 2)).to eq(false)
+      end
+
+      it "returns true when the quantity is greate than the minimum" do
+        expect(promo.valid_for_this_basket?(002, 3)).to eq(false)
+      end
     end
   end
 end

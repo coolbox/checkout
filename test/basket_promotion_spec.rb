@@ -1,4 +1,3 @@
-require "./test/config.rb"
 require "./basket_promotion.rb"
 
 require "yaml"

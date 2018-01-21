@@ -1,4 +1,3 @@
-require "./test/config.rb"
 require "./product.rb"
 
 require "yaml"

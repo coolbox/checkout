@@ -7,4 +7,8 @@ class ProductPromotion
     @minimum_quantity = minimum_quantity
     @price = price
   end
+
+  def valid_for_this_basket?(code, actual_quantity)
+    code == product_code && actual_quantity >= minimum_quantity
+  end
 end
