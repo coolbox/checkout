@@ -22,4 +22,22 @@ RSpec.describe BasketPromotion do
       )
     end
   end
+
+  describe "valid_for_this_basket?" do
+    let(:promo) { BasketPromotion.new(001, 50, 10) }
+
+    it "returns false when the total isn't valid" do
+      order_pre_discount_total = 10
+      expect(promo.valid_for_this_basket?(order_pre_discount_total)).to(
+        eq(false)
+      )
+    end
+
+    it "returns true when the total is valid" do
+      order_pre_discount_total = 100
+      expect(promo.valid_for_this_basket?(order_pre_discount_total)).to(
+        eq(true)
+      )
+    end
+  end
 end
