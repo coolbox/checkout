@@ -2,7 +2,11 @@
 
 Solution by Peter Roome
 
-Email: [pete.roome@gmail.com](mailto: pete.roome@gmail.com)
+Email: <pete.roome@gmail.com>
+
+## Requirements
+- Ruby version: 2.4.1
+- A Terminal application to run some code in.
 
 ## Get started
 1. Open a terminal window
@@ -23,7 +27,7 @@ gem install bundler
 
 4. Install the required gems
 ```
-bundle Install
+bundle install
 ```
 
 ## How to run the tests
@@ -48,6 +52,12 @@ c.scan(002)
 c.scan(003)
 c.total
 ```
+
+#### Note: You'll notice that my implementation expects two sets of promotion rules: basket promotion rules and product promotion rules. Based on the brief, the marketing requirements expressed a need for these two different types of promotion. It therefore seemed sensible to split them in order to simplify the logic.
+
+The promotions provided by the brief can be found in `./config/basket_promotions.yml` and `./config/product_promotions.yml`.
+
+This provides scalability as more promotions can be defined here for use in the solution. However, there are some weaknesses regarding additional promotions and the current implementation, documented further down this document.
 
 ## Test Scenarios
 ### Scenario 1

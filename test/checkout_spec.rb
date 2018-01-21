@@ -82,7 +82,7 @@ RSpec.describe Checkout do
       let(:checkout) { Checkout.new }
 
       it "returns an empty array" do
-        expect(checkout.basket_promotions).to eq([])
+        expect(checkout.send(:basket_promotions)).to eq([])
       end
     end
 
@@ -104,12 +104,12 @@ RSpec.describe Checkout do
       }
 
       it "returns an array of basket promotions" do
-        expect(checkout.basket_promotions).not_to be_empty
-        expect(checkout.basket_promotions).to be_kind_of(Array)
+        expect(checkout.send(:basket_promotions)).not_to be_empty
+        expect(checkout.send(:basket_promotions)).to be_kind_of(Array)
       end
 
       it "returns basket promotions as BasketPromotion object instances" do
-        expect(checkout.basket_promotions.first).to be_instance_of(BasketPromotion)
+        expect(checkout.send(:basket_promotions).first).to be_instance_of(BasketPromotion)
       end
     end
   end
@@ -119,7 +119,7 @@ RSpec.describe Checkout do
       let(:checkout) { Checkout.new }
 
       it "returns an empty array" do
-        expect(checkout.basket_promotions).to eq([])
+        expect(checkout.send(:basket_promotions)).to eq([])
       end
     end
 
@@ -141,12 +141,12 @@ RSpec.describe Checkout do
       }
 
       it "returns an array of basket promotions" do
-        expect(checkout.basket_promotions).not_to be_empty
-        expect(checkout.basket_promotions).to be_kind_of(Array)
+        expect(checkout.send(:basket_promotions)).not_to be_empty
+        expect(checkout.send(:basket_promotions)).to be_kind_of(Array)
       end
 
       it "returns basket promotions as BasketPromotion object instances" do
-        expect(checkout.basket_promotions.first).to be_instance_of(BasketPromotion)
+        expect(checkout.send(:basket_promotions).first).to be_instance_of(BasketPromotion)
       end
     end
   end
@@ -165,7 +165,7 @@ RSpec.describe Checkout do
 
       it "returns the discounted basket total" do
         checkout.scan(product["product_code"])
-        expect(checkout.with_basket_discounts).to eq(product["price"])
+        expect(checkout.send(:with_basket_discounts)).to eq(product["price"])
       end
     end
 
@@ -181,7 +181,7 @@ RSpec.describe Checkout do
       it "returns the discounted basket total" do
         checkout.scan(product["product_code"])
         expected_price = (product["price"] * 0.9).round(2)
-        expect(checkout.with_basket_discounts).to eq(expected_price)
+        expect(checkout.send(:with_basket_discounts)).to eq(expected_price)
       end
     end
 
@@ -197,7 +197,7 @@ RSpec.describe Checkout do
       it "returns the discounted basket total" do
         checkout.scan(product["product_code"])
         expected_price = (product["price"] * 0.9).round(2)
-        expect(checkout.with_basket_discounts).to eq(expected_price)
+        expect(checkout.send(:with_basket_discounts)).to eq(expected_price)
       end
     end
   end
@@ -207,7 +207,7 @@ RSpec.describe Checkout do
       let(:checkout) { Checkout.new }
 
       it "returns an empty array" do
-        expect(checkout.product_promotions).to eq([])
+        expect(checkout.send(:product_promotions)).to eq([])
       end
     end
 
@@ -230,12 +230,12 @@ RSpec.describe Checkout do
       }
 
       it "returns an array of product promotions" do
-        expect(checkout.product_promotions).not_to be_empty
-        expect(checkout.product_promotions).to be_kind_of(Array)
+        expect(checkout.send(:product_promotions)).not_to be_empty
+        expect(checkout.send(:product_promotions)).to be_kind_of(Array)
       end
 
       it "returns product promotions as ProductPromotion object instances" do
-        expect(checkout.product_promotions.first).to(
+        expect(checkout.send(:product_promotions).first).to(
           be_instance_of(ProductPromotion)
         )
       end
@@ -254,7 +254,7 @@ RSpec.describe Checkout do
 
       it "returns the discounted basket total" do
         checkout.scan(product["product_code"])
-        expect(checkout.with_product_discounts).to eq(product["price"])
+        expect(checkout.send(:with_product_discounts)).to eq(product["price"])
       end
     end
 
@@ -272,7 +272,7 @@ RSpec.describe Checkout do
         checkout.scan(product["product_code"])
         checkout.scan(product["product_code"])
         checkout.scan(product["product_code"])
-        expect(checkout.with_product_discounts).to eq(6)
+        expect(checkout.send(:with_product_discounts)).to eq(6)
       end
     end
   end
