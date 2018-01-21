@@ -172,9 +172,9 @@ RSpec.describe Checkout do
     context "basket is above the minimum spend for a basket discount" do
       let(:checkout) do
         Checkout.new(basket_promotion_rules: [{
-          "id": 001,
-          "minimum_spend": (product["price"] / 2).round(2),
-          "discount": 10
+          "id" => 001,
+          "minimum_spend" => (product["price"] / 2).round(2),
+          "discount" => 10
         }])
       end
 
@@ -188,9 +188,9 @@ RSpec.describe Checkout do
     context "basket equals the minimum spend for a basket discount" do
       let(:checkout) do
         Checkout.new(basket_promotion_rules: [{
-          "id": 001,
-          "minimum_spend": product["price"],
-          "discount": 10
+          "id" => 001,
+          "minimum_spend" => product["price"],
+          "discount" => 10
         }])
       end
 
@@ -261,10 +261,10 @@ RSpec.describe Checkout do
     context "basket has products valid for a discount" do
       let(:checkout) do
         Checkout.new(product_promotion_rules: [{
-          "id": 001,
-          "product_code": 001,
-          "minimum_quantity": 2,
-          "price": 2
+          "id" => 001,
+          "product_code" => 001,
+          "minimum_quantity" => 2,
+          "price" => 2
         }])
       end
 
