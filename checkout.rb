@@ -9,12 +9,14 @@ class Checkout
 
   # Append items to the sale
   def scan(product_id)
-    @items << Product.new(product_id)
+    product = Product.find(product_id)
+    @items << product if product
   end
 
   # Total amount due
   def total
-    return 0.00 if @items.length == 0
-    @items.each { |item| item[:price] }
+    sum = 0.00
+    @items.each { |item| sum += item["price"] }
+    return sum
   end
 end
