@@ -47,6 +47,36 @@ RSpec.describe Checkout do
     end
   end
 
+  describe "#total" do
+    let(:checkout) { Checkout.new }
+
+    it "returns 0.0 when there are no items in the basket" do
+      expect(checkout.total).to eq(0.0)
+    end
+
+    context "with products" do
+      let(:product) { PRODUCTS[0] }
+
+      context "without discounts" do
+        it "returns a total of all products" do
+          2.times do
+            checkout.scan(product["product_code"])
+          end
+          expect(checkout.total).to be_kind_of(Float)
+        end
+      end
+
+      context "with discounts" do
+        it "returns a total of all products, including discounts" do
+          10.times do
+            checkout.scan(product["product_code"])
+          end
+          expect(checkout.total).to be_kind_of(Float)
+        end
+      end
+    end
+  end
+
   describe "#basket_promotions" do
     context "with no promotions" do
       let(:checkout) { Checkout.new }
@@ -122,9 +152,7 @@ RSpec.describe Checkout do
   end
 
   describe "#with_basket_discounts" do
-    let(:product) do
-      product = PRODUCTS[0]
-    end
+    let(:product) { PRODUCTS[0] }
 
     context "basket is below the minimum spend for a basket discount" do
       let(:checkout) do
