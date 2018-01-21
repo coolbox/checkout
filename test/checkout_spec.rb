@@ -1,13 +1,14 @@
 require "./test/config.rb"
 require "./checkout.rb"
+require "./basket_promotion.rb"
 
 require "yaml"
 
 PRODUCTS = YAML.load(File.read("config/products.yml")
 ) unless defined?(PRODUCTS)
 
-BASKET_PROMOTIONS = YAML.load(File.read("config/basket_promotions.yml")
-) unless defined?(BASKET_PROMOTIONS)
+BASKET_PROMOTION_RULES = YAML.load(File.read("config/basket_promotions.yml")
+) unless defined?(BASKET_PROMOTION_RULES)
 
 RSpec.describe Checkout do
   describe "#scan" do
@@ -25,11 +26,11 @@ RSpec.describe Checkout do
     end
   end
 
-  describe "#total" do
+  describe "#running_total" do
     let(:checkout) { Checkout.new }
 
     it "returns 0.0 when there are no items in the basket" do
-      expect(checkout.total).to eq(0.0)
+      expect(checkout.running_total).to eq(0.0)
     end
 
     it "returns a total when there are items in the basket" do
@@ -40,14 +41,97 @@ RSpec.describe Checkout do
       end
 
       expected_price = product["price"] * 2
-      expect(checkout.total).to eq(expected_price)
+      expect(checkout.running_total).to eq(expected_price)
     end
   end
 
-  # context "with a 10% basket discount" do
-  #   describe "#total" do
-  #     it "returns a discounted basket total" do
-  #     end
-  #   end
-  # end
+  describe "#basket_promotions" do
+    context "with no promotions" do
+      let(:checkout) { Checkout.new }
+
+      it "returns an empty array" do
+        expect(checkout.basket_promotions).to eq([])
+      end
+    end
+
+    context "with some promotions" do
+      let(:checkout) do
+        Checkout.new(basket_promotion_rules: BASKET_PROMOTION_RULES)
+      end
+
+      let(:promos) {
+        promos = []
+        BASKET_PROMOTION_RULES.each do |bp|
+          promos << BasketPromotion.new(
+            bp[:id],
+            bp[:minimum_spend],
+            bp[:discount]
+          )
+        end
+        return promos
+      }
+
+      it "returns an array of basket promotions" do
+        expect(checkout.basket_promotions).not_to be_empty
+        expect(checkout.basket_promotions).to be_kind_of(Array)
+      end
+
+      it "returns basket promotions as BasketPromotion object instances" do
+        expect(checkout.basket_promotions.first).to be_instance_of(BasketPromotion)
+      end
+    end
+  end
+
+  describe "#with_basket_discounts" do
+    let(:product) do
+      product = PRODUCTS[0]
+    end
+
+    context "basket is below the minimum spend for a basket discount" do
+      let(:checkout) do
+        Checkout.new(basket_promotion_rules: [{
+          "id": 001,
+          "minimum_spend": product["price"] * 1000.0,
+          "discount": 10
+        }])
+      end
+
+      it "returns the discounted basket total" do
+        checkout.scan(product["product_code"])
+        expect(checkout.with_basket_discounts).to eq(product["price"])
+      end
+    end
+
+    context "basket is above the minimum spend for a basket discount" do
+      let(:checkout) do
+        Checkout.new(basket_promotion_rules: [{
+          "id": 001,
+          "minimum_spend": (product["price"] / 2).round(2),
+          "discount": 10
+        }])
+      end
+
+      it "returns the discounted basket total" do
+        checkout.scan(product["product_code"])
+        expected_price = (product["price"] * 0.9).round(2)
+        expect(checkout.with_basket_discounts).to eq(expected_price)
+      end
+    end
+
+    context "basket equals the minimum spend for a basket discount" do
+      let(:checkout) do
+        Checkout.new(basket_promotion_rules: [{
+          "id": 001,
+          "minimum_spend": product["price"],
+          "discount": 10
+        }])
+      end
+
+      it "returns the discounted basket total" do
+        checkout.scan(product["product_code"])
+        expected_price = (product["price"] * 0.9).round(2)
+        expect(checkout.with_basket_discounts).to eq(expected_price)
+      end
+    end
+  end
 end
