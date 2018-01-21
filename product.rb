@@ -6,14 +6,9 @@ class Product
 
   attr_accessor :product_code, :attributes
 
-  def initialize(product_code)
-    @product_code = product_code
-    @attributes = find_product
-  end
-
-  def find_product
+  def self.find(product_code)
     PRODUCTS.find do |product|
-      product["product_code"] == @product_code
+      product["product_code"] == product_code
     end
   end
 end
