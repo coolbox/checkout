@@ -101,8 +101,6 @@ Although the code satisfies the brief, there are a few weaknesses with this impl
 
 - I would like to limit the number of discounts that could be applied to products and the basket as a whole. As it stands the Marketing team could add multiple basket promotions and all of them would be applied to the basket, if they satisfied the promotion's conditions. From the business' point of view, the customer should only receive one basket promotion. This is the same for product promotions too.
 
-- There is a lot of logic in the `with_basket_discounts` and `with_product_discounts` methods in the `Checkout` class. I would like to abstract some of the logic here into the `BasketPromotion` and `ProductPromotion` classes. This would simplify the `Checkout` class and make these methods more readable.
-
 - The `Product` class implementation could be better. Currently it just finds an object from the array of products loaded from the YAML file. I think this class should instead receive arguments, such as `code`, `name` and `price`, in order to build a `Product`. That way methods could be created on the `Product` class, if needed. I didn't find this necessary for to satisfy the brief though.
 
 - `ProductPromotion` and `BasketPromotion` both require defined arguments to be passed through to create an instance of each. As the solution expands, a more versatile approach would be to pass through an object of `args` and define this on each class like this, for example:
