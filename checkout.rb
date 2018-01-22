@@ -70,11 +70,7 @@ class Checkout
     discounted_total = total_to_apply_discounts_to
     basket_promotions.each do |promo|
       next if !promo.valid_for_this_basket?(total_to_apply_discounts_to)
-      # 10% discount on 100
-      # 100 - (100 * (10 / 100))
-      discount = (promo.discount.to_f / 100.0)
-      total_after_discount = discounted_total * discount
-      discounted_total = discounted_total - total_after_discount
+      discounted_total = promo.discounted_price(discounted_total)
     end
     return discounted_total.round(2)
   end
@@ -83,13 +79,8 @@ class Checkout
     amount_to_discount = 0
     product_groups = @items.group_by { |item| item["product_code"] }
     product_groups.each do |group, items|
-      quantity = items.length
-      product_code = items.first["product_code"]
       product_promotions.each do |promo|
-        next if !promo.valid_for_this_basket?(product_code, quantity)
-        new_price = promo.price.to_f
-        original_total = items.map { |item| item["price"] }.sum
-        amount_to_discount += (original_total - (new_price * quantity))
+        amount_to_discount += promo.amount_to_discount(items)
       end
     end
     return running_total - amount_to_discount
