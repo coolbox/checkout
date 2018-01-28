@@ -53,11 +53,11 @@ RSpec.describe ProductPromotion do
         expect(promo.valid_for_this_basket?(002, 1)).to eq(false)
       end
 
-      it "returns true when the quantity is equal to the minimum" do
+      it "returns false when the quantity is equal to the minimum" do
         expect(promo.valid_for_this_basket?(002, 2)).to eq(false)
       end
 
-      it "returns true when the quantity is greate than the minimum" do
+      it "returns false when the quantity is greate than the minimum" do
         expect(promo.valid_for_this_basket?(002, 3)).to eq(false)
       end
     end
