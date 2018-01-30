@@ -36,6 +36,15 @@ class Checkout
   def total
     total = with_product_discounts
     total = with_basket_discounts(total)
+    return total
+  end
+
+  def convert(currency_symbol, conversion_rate)
+    converted_total = (total * conversion_rate.to_f)
+    return format("#{currency_symbol}%.2f", converted_total)
+  end
+
+  def to_s
     return "£#{total}"
   end
 
@@ -50,6 +59,7 @@ class Checkout
         promo_rule["discount"]
       )
     end
+    promos.sort_by! { |promo| promo.minimum_spend }.reverse!
     return promos
   end
 
@@ -71,6 +81,7 @@ class Checkout
     basket_promotions.each do |promo|
       next if !promo.valid_for_this_basket?(total_to_apply_discounts_to)
       discounted_total = promo.discounted_price(discounted_total)
+      return discounted_total
     end
     return discounted_total.round(2)
   end

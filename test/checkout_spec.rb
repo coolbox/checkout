@@ -1,77 +1,55 @@
 require "./checkout.rb"
-require "./basket_promotion.rb"
-
-require "yaml"
-
-PRODUCTS = YAML.load(File.read("config/products.yml")
-) unless defined?(PRODUCTS)
-
-BASKET_PROMOTION_RULES = YAML.load(File.read("config/basket_promotions.yml")
-) unless defined?(BASKET_PROMOTION_RULES)
-
-PRODUCT_PROMOTION_RULES = YAML.load(File.read("config/basket_promotions.yml")
-) unless defined?(PRODUCT_PROMOTION_RULES)
 
 RSpec.describe Checkout do
-  describe "#scan" do
-    let(:checkout) { Checkout.new }
+  subject { Checkout.new }
 
+  describe "#scan" do
     it "adds a product to the basket" do
-      checkout.scan(001)
-      expect(checkout.items.length).to eq(1)
+      subject.scan(001)
+      expect(subject.items.length).to eq(1)
     end
 
     it "makes no change to the items array if no product is found" do
-      checkout.scan(001)
-      checkout.scan(10)
-      expect(checkout.items.length).to eq(1)
+      subject.scan(001)
+      subject.scan(10)
+      expect(subject.items.length).to eq(1)
     end
   end
 
   describe "#running_total" do
-    let(:checkout) { Checkout.new }
-
     it "returns 0.0 when there are no items in the basket" do
-      expect(checkout.running_total).to eq(0.0)
+      expect(subject.running_total).to eq(0.0)
     end
 
     it "returns a total when there are items in the basket" do
-      product = PRODUCTS[0]
-
-      2.times do
-        checkout.scan(product["product_code"])
-      end
-
+      product = {"product_code" => 001, "price" => 5.50}
+      subject.instance_variable_set(:@items, [product, product])
       expected_price = product["price"] * 2
-      expect(checkout.running_total).to eq(expected_price)
+      expect(subject.running_total).to eq(expected_price)
     end
   end
 
   describe "#total" do
-    let(:checkout) { Checkout.new }
-
     it "returns 0.0 when there are no items in the basket" do
-      expect(checkout.total).to eq("£0.0")
+      expect(subject.total).to eq("£0.0")
     end
 
     context "with products" do
-      let(:product) { PRODUCTS[0] }
+      let(:product) { {"product_code" => 001, "price" => 5.50} }
 
       context "without discounts" do
         it "returns a total of all products" do
-          2.times do
-            checkout.scan(product["product_code"])
-          end
-          expect(checkout.total).to be_kind_of(String)
+          subject.instance_variable_set(:@items, [product, product])
+          expect(subject.total).to be_kind_of(String)
         end
       end
 
       context "with discounts" do
         it "returns a total of all products, including discounts" do
-          10.times do
-            checkout.scan(product["product_code"])
-          end
-          expect(checkout.total).to be_kind_of(String)
+          subject.instance_variable_set(:@items, [
+            product, product, product, product
+          ])
+          expect(subject.total).to be_kind_of(String)
         end
       end
     end
@@ -79,29 +57,27 @@ RSpec.describe Checkout do
 
   describe "#basket_promotions" do
     context "with no promotions" do
-      let(:checkout) { Checkout.new }
-
       it "returns an empty array" do
-        expect(checkout.send(:basket_promotions)).to eq([])
+        expect(subject.send(:basket_promotions)).to eq([])
       end
     end
 
     context "with some promotions" do
       let(:checkout) do
-        Checkout.new(basket_promotion_rules: BASKET_PROMOTION_RULES)
+        Checkout.new(basket_promotion_rules: promo_rules)
       end
 
-      let(:promos) {
+      let(:promo_rules) do
         promos = []
-        BASKET_PROMOTION_RULES.each do |bp|
-          promos << BasketPromotion.new(
-            bp[:id],
-            bp[:minimum_spend],
-            bp[:discount]
-          )
+        (1..9).to_a.sample.times do |index|
+          promos << {
+            "id" => index + 1,
+            "minimum_spend" => [20, 30, 40].sample,
+            "discount" => [5, 10, 15].sample
+          }
         end
         return promos
-      }
+      end
 
       it "returns an array of basket promotions" do
         expect(checkout.send(:basket_promotions)).not_to be_empty
@@ -116,29 +92,27 @@ RSpec.describe Checkout do
 
   describe "#basket_promotions" do
     context "with no promotions" do
-      let(:checkout) { Checkout.new }
-
       it "returns an empty array" do
-        expect(checkout.send(:basket_promotions)).to eq([])
+        expect(subject.send(:basket_promotions)).to eq([])
       end
     end
 
     context "with some promotions" do
       let(:checkout) do
-        Checkout.new(basket_promotion_rules: BASKET_PROMOTION_RULES)
+        Checkout.new(basket_promotion_rules: promo_rules)
       end
 
-      let(:promos) {
+      let(:promo_rules) do
         promos = []
-        BASKET_PROMOTION_RULES.each do |promo_rule|
-          promos << BasketPromotion.new(
-            promo_rule[:id],
-            promo_rule[:minimum_spend],
-            promo_rule[:discount]
-          )
+        (1..9).to_a.sample.times do |index|
+          promos << {
+            "id" => index + 1,
+            "minimum_spend" => [20, 30, 40].sample,
+            "discount" => [5, 10, 15].sample
+          }
         end
         return promos
-      }
+      end
 
       it "returns an array of basket promotions" do
         expect(checkout.send(:basket_promotions)).not_to be_empty
@@ -152,7 +126,13 @@ RSpec.describe Checkout do
   end
 
   describe "#with_basket_discounts" do
-    let(:product) { PRODUCTS[0] }
+    let(:product) do
+      return { "product_code" => 001, "price" => 5.50 }
+    end
+
+    before do
+      allow(Product).to receive(:find).and_return(product)
+    end
 
     context "basket is below the minimum spend for a basket discount" do
       let(:checkout) do
@@ -204,30 +184,28 @@ RSpec.describe Checkout do
 
   describe "#product_promotions" do
     context "with no promotions" do
-      let(:checkout) { Checkout.new }
-
       it "returns an empty array" do
-        expect(checkout.send(:product_promotions)).to eq([])
+        expect(subject.send(:product_promotions)).to eq([])
       end
     end
 
     context "with some promotions" do
       let(:checkout) do
-        Checkout.new(product_promotion_rules: PRODUCT_PROMOTION_RULES)
+        Checkout.new(product_promotion_rules: promo_rules)
       end
 
-      let(:promos) {
+      let(:promo_rules) do
         promos = []
-        PRODUCT_PROMOTION_RULES.each do |promo_rule|
-          promos << ProductPromotion.new(
-            promo_rule[:id],
-            promo_rule[:product_code],
-            promo_rule[:minimum_quantity],
-            promo_rule[:price]
-          )
+        (1..9).to_a.sample.times do |index|
+          promos << {
+            "id" => index + 1,
+            "product_code" => (1..9).to_a.sample,
+            "minimum_quantity" => (1..10).to_a.sample,
+            "price" => 5
+          }
         end
         return promos
-      }
+      end
 
       it "returns an array of product promotions" do
         expect(checkout.send(:product_promotions)).not_to be_empty
@@ -243,18 +221,16 @@ RSpec.describe Checkout do
   end
 
   describe "#with_product_discounts" do
-    let(:product) do
-      product = PRODUCTS[0]
+    let(:product) { {"product_code" => 001, "price" => 5.50} }
+
+    before do
+      allow(Product).to receive(:find).and_return(product)
     end
 
     context "basket has no products valid for a discount" do
-      let(:checkout) do
-        Checkout.new
-      end
-
       it "returns the discounted basket total" do
-        checkout.scan(product["product_code"])
-        expect(checkout.send(:with_product_discounts)).to eq(product["price"])
+        subject.scan(product["product_code"])
+        expect(subject.send(:with_product_discounts)).to eq(product["price"])
       end
     end
 

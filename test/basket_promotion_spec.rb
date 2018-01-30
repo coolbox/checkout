@@ -43,7 +43,7 @@ RSpec.describe BasketPromotion do
   describe "#discounted_price" do
     let(:promo) { BasketPromotion.new(001, 50, 10) }
 
-    it "returns 0.0 when no price is supplied" do
+    it "returns 0 when no price is supplied" do
       expect(promo.discounted_price).to eq(0)
     end
 
