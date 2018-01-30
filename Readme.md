@@ -1,6 +1,8 @@
 # Checkout Coding Test
 
-Solution by Peter Roome
+Code test brief: [Checkout](https://docs.google.com/document/d/1lVzmQCfp5UcP7ygR2M8BLmbOA-T1wbXocAwaT8gruro)
+
+Solution by: Peter Roome
 
 Email: <pete.roome@gmail.com>
 
